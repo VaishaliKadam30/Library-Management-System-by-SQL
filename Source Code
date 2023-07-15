@@ -1,0 +1,110 @@
+create database Library_Management_System ;
+create table publiser(Publiser_Name varchar(700) primary key ,Publiser_Address varchar(700),Publiser_Phoneno varchar(755))
+SELECT * FROM library_management_system.publiser;
+ALTER TABLE table_name ADD PRIMARY KEY (column_name);
+DESC publiser;
+create table Borrower(Borrower_Name varchar(700) primary key ,Borrower_Address varchar(700),Borrower_Phoneno varchar(755));
+select * from borrower;
+create table Book(Book_title varchar(700),Publiser_name varchar(700));
+select * from book;
+create table Branch (Branch_name varchar(700), Branch_address varchar (700));
+select * from Branch;
+select * from loan;
+create table Copies(CopiesID int , BookID int ,No_of_Copies int);
+select * from copies;
+create table Author(AuthorID int,Author_name varchar(700));
+select * from Author;
+
+SELECT COUNT(*) AS NoOfCopies FROM ((BOOK NATURAL JOIN COPIES) NATURAL JOIN BRANCH)
+WHERE Book_title='The Lost Tribe' AND Branch_Name='Sharpstown';
+
+SELECT BRANCH.Branch_Name,COUNT(*) AS NoOfCopies FROM ((BOOK NATURAL JOIN COPIES) NATURAL JOIN BRANCH)
+WHERE Book_title='The Lost Tribe'  group by Branch_Name;
+
+SELECT Borrower_Name FROM BORROWER WHERE NOT EXISTS (SELECT * FROM LOAN WHERE BORROWER.borrower_name = LOAN.loanID );
+SELECT Borrower_Name FROM BORROWER WHERE NOT EXISTS (SELECT * FROM LOAN WHERE BORROWER.borrower_name = LOAN.BookID );
+SELECT Borrower_Name FROM BORROWER WHERE NOT EXISTS (SELECT * FROM LOAN WHERE BORROWER.borrower_name = LOAN.branchID );
+SELECT Borrower_Name FROM BORROWER WHERE NOT EXISTS (SELECT * FROM LOAN WHERE BORROWER.borrower_name = LOAN.Date_out );
+SELECT Borrower_Name FROM BORROWER WHERE NOT EXISTS (SELECT * FROM LOAN WHERE BORROWER.borrower_name = LOAN.Due_date );
+
+SELECT
+  BOOK.Book_Title,
+  BORROWER.Borrower_Name,
+  BORROWER.Borrower_Address,
+  BRANCH.Branch_Name
+FROM BOOK
+JOIN LOAN ON BOOK.Book_title = LOAN.Due_date
+JOIN BORROWER ON LOAN.Due_date = BORROWER.Borrower_Name
+JOIN BRANCH ON LOAN.Due_date = BRANCH.Branch_name
+WHERE
+  Branch.Branch_Name = 'Sharpstown' AND
+LOAN.Due_Date = CURRENT_DATE();
+
+
+SELECT
+  BOOK.Book_Title,
+  BORROWER.Borrower_Name,
+  BORROWER.Borrower_Address,
+  BRANCH.Branch_Name
+FROM BOOK
+JOIN LOAN ON BOOK.Book_title = LOAN.Due_date
+JOIN BORROWER ON LOAN.Due_date = BORROWER.Borrower_Name
+JOIN BRANCH ON LOAN.Due_date = BRANCH.Branch_name
+WHERE
+  Branch.Branch_Name = 'Saline' AND
+LOAN.Due_Date =2-13-18 ;
+
+
+
+SELECT BRANCH.Branch_Name, COUNT(*) AS Total_Loaned_Books FROM LOAN JOIN BRANCH ON LOAN.BranchID = BRANCH.Branch_name GROUP BY BRANCH.Branch_Name;
+SELECT BRANCH.Branch_Name, COUNT(*) AS Total_Loaned_Books FROM LOAN JOIN BRANCH ON LOAN.BranchID = BRANCH.Branch_name 
+join Copies  on Loan.BookID = copies.BookID GROUP BY BRANCH.Branch_Name ;
+
+
+SELECT
+  BORROWER.Borrower_Name,
+  BORROWER.Borrower_Address,
+  COUNT(*) AS NumBooksCheckedOut
+FROM LOAN
+JOIN BORROWER ON LOAN.BookID = BORROWER.Borrower_name
+GROUP BY BORROWER.Borrower_Name
+HAVING COUNT(*) > 5;
+
+
+SELECT
+  BORROWER.Borrower_Name,
+  BORROWER.Borrower_Address,
+  COUNT(copies.CopiesID) AS NumBooksCheckedOut
+FROM LOAN
+JOIN BORROWER ON LOAN.BookID = BORROWER.Borrower_name
+join copies on loan.BookID=copies.CopiesID
+GROUP BY BORROWER.Borrower_Name
+HAVING COUNT(copies.CopiesID) > 5;
+
+
+set sql_safe_updates=0;
+
+SELECT b.Book_title, b.author_name,b.copies.no_of_copies FROM book AS b JOIN branch AS br ON b.branchid = br.branchid
+JOIN author ON book.authorid = author.authorid
+WHERE b.author_name= 'Stephen King' AND br.Branch_name = 'Central';
+
+SELECT book.Book_title, copies.no_of_copies,author.Author_name
+FROM book
+JOIN author ON book.Book_title= author.authorid
+JOIN copies ON book.book_title = copies.bookid
+JOIN branch ON copies.CopiesID = branch.branch_name
+WHERE author.author_name = 'Stephen King'
+  or branch.branch_name = 'Central';
+select * from book;
+
+SELECT BOOK.Book_Title, COPIES.No_Of_Copies
+FROM BOOK
+JOIN AUTHOR ON BOOK.Book_title = AUTHOR.Author_name
+JOIN COPIES ON BOOK.Book_title = COPIES.BookId
+JOIN BRANCH ON COPIES.CopiesId = BRANCH.Branch_name
+WHERE AUTHOR.Author_Name = 'Stephen King'
+  or BRANCH.Branch_Name = 'Ann Arbor';
+
+
+
+
